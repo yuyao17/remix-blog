@@ -1,21 +1,14 @@
-import type { LoaderFunction } from "@remix-run/data";
 import type { LinksFunction } from "@remix-run/react";
-import { Meta, Links, Scripts, useRouteData } from "@remix-run/react";
+import { Meta, Links, Scripts } from "@remix-run/react";
 import { Outlet } from "react-router-dom";
 
 import styles from "url:./styles/global.css";
-
-export let loader: LoaderFunction = async () => {
-  return { date: new Date() };
-};
 
 export let links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: styles }];
 };
 
 export default function App() {
-  let data = useRouteData();
-
   return (
     <html lang="en">
       <head>
@@ -23,12 +16,8 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="bg-gray-100 text-gray-900">
         <Outlet />
-
-        <footer>
-          <p>This page was rendered at {data.date.toLocaleString()}</p>
-        </footer>
         <Scripts />
       </body>
     </html>

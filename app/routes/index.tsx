@@ -1,35 +1,46 @@
-import type { LinksFunction } from "@remix-run/react";
 import { useRouteData } from "@remix-run/react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/data";
+import { supabase } from "../lib/initSupabase";
+import { getSession } from "../sessionStorage";
+import { Link } from "react-router-dom";
+import * as React from "react";
 
-import styles from "url:../styles/index.css";
-
-export let loader: LoaderFunction = async () => {
-  return { message: "this is awesome 😎" };
+type Data = {
+  posts: {
+    id: number;
+    markdownText: string;
+    title: string;
+  }[];
+  admin: boolean;
 };
 
-export let links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: styles }];
+export let loader: LoaderFunction = async ({ request }) => {
+  let session = await getSession(request.headers.get("Cookie"));
+  let { data: posts } = await supabase.from("posts").select("*");
+  return { posts, admin: session.has("loggedIn") };
 };
 
 export let meta: MetaFunction = () => {
   return {
     title: "Remix Starter",
-    description: "Welcome to remix!"
+    description: "Welcome to remix!",
   };
 };
 
 export default function Index() {
-  let data = useRouteData();
+  let { posts, admin } = useRouteData<Data>();
 
   return (
-    <div style={{ textAlign: "center", padding: 20 }}>
+    <div className="max-w-7xl m-auto">
       <h2>Welcome to Remix!</h2>
-      <p>
-        <a href="https://remix.run/dashboard/docs">Check out the docs</a> to get
-        started.
-      </p>
-      <p>Message from the loader: {data.message}</p>
+      <ul>
+        {posts.map((post) => (
+          <React.Fragment key={post.id}>
+            <li>{post.title}</li>
+            {admin ? <Link to={`/${post.id}/edit`}>Edit</Link> : null}
+          </React.Fragment>
+        ))}
+      </ul>
     </div>
   );
 }

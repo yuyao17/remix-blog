@@ -3,3 +3,7 @@ package-lock.json
 
 /build
 /public/build
+
+.envrc
+
+app/styles/global.css
